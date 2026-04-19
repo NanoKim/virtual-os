@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "tasks": [
+    {
+      "label": "Start VirtualOS",
+      "type": "shell",
+      "command": "pnpm start",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+      },
+      "runOptions": {
+        "runOn": "folderOpen",
+      }
+    },
+  ]
+}

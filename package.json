@@ -1,11 +1,17 @@
 {
   "name": "virtual-os",
   "private": true,
-  "version": "0.0.0",
+  "author": {
+		"name": "NanoKim",
+		"email": "kjyyy7341@gmail.com"
+	},
   "type": "module",
+  "license": "MIT",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "start": "vite",
+    "build": "vite build",
+    "demo:build": "pnpm --filter @virtual-os/demo run build",
+    "demo:start": "pnpm --filter @virtual-os/demo run start",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -21,6 +27,8 @@
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-jsdoc": "^62.5.0",
+		"eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
     "typescript": "~6.0.2",
