@@ -1,0 +1,105 @@
+import { Skin } from "@virtual-os/skins";
+import { VirtualDriveConfig } from "./configs";
+import { AppsConfig } from "./configs/appsConfig";
+import { DesktopConfig } from "./configs/desktopConfig";
+import { MiscConfig } from "./configs/miscConfig";
+import { ModalsConfig } from "./configs/modalsConfig";
+import { TaskbarConfig } from "./configs/taskbarConfig";
+import { TrackingConfig } from "./configs/trackingConfig";
+import { WindowsConfig } from "./configs/windowsConfig";
+import { formatRelativeTime } from "@virtual-os/shared";
+import { Storage } from "../storage/storage";
+
+export interface SystemManagerParams {
+	systemName: SystemManager["systemName"] | null;
+	tagLine: SystemManager["tagLine"] | null;
+
+	skin?: SystemManager["skin"];
+
+	desktopConfig: DesktopConfig;
+	appsConfig: AppsConfig;
+	miscConfig: MiscConfig;
+	modalsConfig: ModalsConfig;
+	taskbarConfig: TaskbarConfig;
+	trackingConfig: TrackingConfig;
+	windowsConfig: WindowsConfig;
+	virtualDriveConfig: VirtualDriveConfig;
+}; 
+
+export class SystemManager {
+	/** The name of the system. */
+	readonly systemName: string;
+	/** The tagline/short description of the system. */
+	readonly tagLine: string;
+	#startDate: Date;
+
+	readonly skin: Skin;
+
+	readonly appsConfig: AppsConfig;
+	readonly desktopConfig: DesktopConfig;
+	readonly miscConfig: MiscConfig;
+	readonly modalsConfig: ModalsConfig;
+	readonly taskbarConfig: TaskbarConfig;
+	readonly trackingConfig: TrackingConfig;
+	readonly windowsConfig: WindowsConfig;
+	readonly virtualDriveConfig: VirtualDriveConfig;
+
+	readonly storage: Storage;
+
+	constructor({
+		systemName,
+		tagLine,
+		skin,
+		desktopConfig,
+		appsConfig,
+		miscConfig,
+		modalsConfig,
+		taskbarConfig,
+		trackingConfig,
+		windowsConfig,
+		virtualDriveConfig,
+	}: SystemManagerParams) {
+		this.systemName = systemName ?? "VirtualOS";
+		this.tagLine = tagLine ?? "Web-based Operating System";
+
+		this.skin = skin ?? new Skin();
+
+		this.desktopConfig = desktopConfig;
+		this.appsConfig = appsConfig;
+		this.miscConfig = miscConfig;
+		this.modalsConfig = modalsConfig;
+		this.taskbarConfig = taskbarConfig;
+		this.trackingConfig = trackingConfig;
+		this.windowsConfig = windowsConfig;
+		this.virtualDriveConfig = virtualDriveConfig;
+
+		this.storage = new Storage();
+
+		this.loadSkin();
+
+		this.#startDate = new Date();
+	}
+
+	private loadSkin() {
+		const skin = this.skin;
+
+		if (skin.appIcons != null || skin.appNames != null) {
+			const appIcons = skin.appIcons ?? {};
+			const appNames = skin.appNames ?? {};
+
+			this.appsConfig.apps.forEach((app) => {
+				if (Object.keys(appIcons).includes(app.id))
+					app.setIconUrl(appIcons[app.id]);
+				if (Object.keys(appNames).includes(app.id))
+					app.setName(appNames[app.id]);
+			});
+		}
+
+		if (skin.loadStyleSheet != null)
+			skin.loadStyleSheet();
+	}
+
+	getUptime(precision = 2) {
+		return formatRelativeTime(this.#startDate, precision, false); 
+	}
+}

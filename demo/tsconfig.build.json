@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "virtual-os": ["packages/virtual-os/dist/main.d.ts"],
+      "@virtual-os/core": ["packages/core/dist/main.d.ts"],
+      "@virtual-os/shared": ["packages/shared/dist/main.d.ts"],
+      "@virtual-os/skins": ["packages/skins/dist/main.d.ts"],
+      "@virtual-os/dev-tools": ["packages/dev-tools/dist/main.d.ts"],
+      "@virtual-os/*": ["packages/apps/*/dist/main.d.ts"]
+    }
+  }
+}

@@ -4,3 +4,7 @@ packages:
   - demo
   - docs
   - examples/*
+
+overrides:
+  shared: link:../../../AppData/Local/pnpm/global/5/node_modules/@virtual-os/shared
+  skins: link:../../../AppData/Local/pnpm/global/5/node_modules/@virtual-os/skins

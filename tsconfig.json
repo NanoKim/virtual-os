@@ -38,8 +38,8 @@
 		"packages/**/*",
 		"scripts/**/*",
 		"demo/**/*",
-		"docs/**/*", 
-		"examples/**/*", 
+		// "docs/**/*", 
+		// "examples/**/*", 
 	],
 	"exclude": [
 		"**/node_modules/**/*",

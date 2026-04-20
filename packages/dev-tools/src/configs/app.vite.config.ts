@@ -1,0 +1,60 @@
+import { UserConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import dts from "vite-plugin-dts";
+import cssInjectedByJs from "vite-plugin-css-injected-by-js";
+import { posix, resolve, sep } from "path";
+import { appMetadataPlugin } from "../plugins";
+import { Logger } from "@virtual-os/shared";
+
+const logger = new Logger();
+
+/**
+ * Creates a Vite configuration for VirtualOS apps.
+ * @param basePath - The path of the base directory.
+ * @param entryPath - The path of the library entry.
+ * @returns The Vite configuration.
+ * @see https://vitejs.dev/config/
+ */
+export const appViteConfig = (basePath: string, entryPath: string, appClass?: string): UserConfig => {
+	let entryFile = resolve(basePath, entryPath);
+
+	// Normalize paths for Windows compatibility
+	if (sep === "\\")
+		entryFile = entryFile.split(sep).join(posix.sep);
+
+	logger.text("Using Vite config for app");
+	logger.parameter("Entry", entryFile);
+
+	return {
+		plugins: [
+			appMetadataPlugin({
+				entryPath,
+				appClass,
+			}),
+			react(),
+			cssInjectedByJs(),
+			dts({
+				outDir: "dist",
+				rollupTypes: true,
+				strictOutput: true,
+				pathsToAliases: false,
+				tsconfigPath: "tsconfig.build.json",
+			}),
+		],
+		build: {
+			lib: {
+				entry: entryFile,
+				formats: ["es"],
+			},
+			rollupOptions: {
+				external: ["react", "react/jsx-runtime", "@virtual-os/core", "@virtual-os/shared", "@virtual-os/skins", /@fortawesome\/*/g],
+				output: {
+					assetFileNames: "assets/[name][extname]",
+					chunkFileNames: "chunks/[name]-[hash].js",
+					entryFileNames: "[name].js",
+				},
+			},
+			sourcemap: true,
+		},
+	};
+};

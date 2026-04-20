@@ -1,0 +1,10 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"paths": {
+			"@virtual-os/core": ["packages/core/dist/main"],
+			"@virtual-os/shared": ["packages/shared/dist/main"],
+			"@virtual-os/*": ["packages/apps/*/dist/main"]
+		}
+	},
+}

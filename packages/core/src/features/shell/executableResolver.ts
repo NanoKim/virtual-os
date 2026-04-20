@@ -1,0 +1,106 @@
+import { Result } from "@virtual-os/shared";
+import { VirtualFile, VirtualFolder } from "../virtual-drive";
+import { Command } from "./command";
+import { ShellEnvironment } from "./shellEnvironment";
+
+const modules = import.meta.glob("./commands/*.ts");
+
+/**
+ * An executable command or file.
+ */
+export type Executable = Command | VirtualFile;
+
+/**
+ * Represent the result of the resolution of an executable.
+ */
+export type ExecutableResolutionResult = Result<Executable, string>;
+
+export class ExecutableResolver {
+	static builtins: Command[] = [];
+	private static loadingTask: Promise<void> | null = null;
+
+	static readonly NOT_FOUND_ERROR = "Command not found";
+	static readonly IS_DIRECTORY_ERROR = "Is a directory";
+
+	/**
+	 * Finds the executable with the given name.
+	 * @param name - The name of the executable.
+	 * @param env - The environment to read the path variable from.
+	 * @param workingDirectory - The directory to search in.
+	 */
+	public static async resolve(name: string, env: ShellEnvironment, workingDirectory: VirtualFolder): Promise<ExecutableResolutionResult> {
+		if (this.loadingTask)
+			await this.loadingTask;
+
+		if (name.includes("/"))
+			return this.resolvePath(name, workingDirectory);
+
+		return Result.nonNullOrElse(
+			this.getBuiltin(name),
+			() => this.resolveFromPathVariable(name, env, workingDirectory)
+		);
+	}
+
+	private static resolvePath(path: string, workingDirectory: VirtualFolder): ExecutableResolutionResult {
+		return Result.nonNullOr(workingDirectory.navigate(path), this.NOT_FOUND_ERROR)
+			.flatMap((target) => 
+				target.isFile() ? Result.ok(target) : Result.error(this.IS_DIRECTORY_ERROR)
+			);
+	}
+
+	private static resolveFromPathVariable(name: string, env: ShellEnvironment, workingDirectory: VirtualFolder): ExecutableResolutionResult {
+		const pathString = env.get("PATH");
+		if (!pathString)
+			return Result.error(this.NOT_FOUND_ERROR);
+
+		const directories = pathString.split(":");
+		for (const dir of directories) {
+			const fullPath = `${dir}/${name}`;
+
+			const result = this.resolvePath(fullPath, workingDirectory);
+			if (result.isOk())
+				return result;
+		}
+
+		return Result.error(this.NOT_FOUND_ERROR);
+	}
+
+	/**
+	 * Finds the builtin command with the given name.
+	 * @param name - The name of the builtin.
+	 * @returns The builtin with the given name, or `null` if there is none.
+	 */
+	public static getBuiltin(name: string): Command | null {
+		return this.builtins.find((command) => command.name === name) ?? null;
+	}
+
+	/**
+	 * Loads all builtins.
+	 * @returns A promise that resolves when all builtins have finished loading.
+	 */
+	public static async loadBuiltins() {
+		this.builtins = [];
+
+		const promises = Object.entries(modules).map(async ([_path, loadModule]) => {
+			const commandModule = await loadModule();
+			const commandName = Object.keys(commandModule as Record<string, Command>)[0];
+			const command = (commandModule as Record<string, Command>)[commandName];
+
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			if (command !== undefined) {
+				if (!command.name)
+					command.setName(commandName.toLowerCase());
+
+				this.builtins.push(command);
+			}
+		});
+
+		this.loadingTask = Promise.all(promises).then(() => {
+			this.loadingTask = null;
+		});
+
+		return this.loadingTask;
+	}
+}
+
+void ExecutableResolver.loadBuiltins();
