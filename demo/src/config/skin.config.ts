@@ -2,7 +2,7 @@ import { Skin } from "@virtual-os/skins";
 import { removeBaseUrl } from "virtual-os";
 
 const defaultSkin = new Skin({
-	defaultWallpaper: "/assets/wallpapers/abstract-mesh-gradient-orange-red-purple.png",
+	defaultWallpaper: "/assets/wallpapers/bubble-wallpaper-skyblue.png",
 });
 
 function cleanUrls(skin: Skin) {

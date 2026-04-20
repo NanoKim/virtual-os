@@ -11,7 +11,6 @@ export const windows95Skin = new Skin({
 		"calculator": "/assets/skins/windows95/apps/icons/calculator.svg",
 		"file-explorer": "/assets/skins/windows95/apps/icons/file-explorer.svg",
 		"media-viewer": "/assets/skins/windows95/apps/icons/media-viewer.svg",
-		"minesweeper": "/assets/skins/windows95/apps/icons/minesweeper.svg",
 		"settings": "/assets/skins/windows95/apps/icons/settings.svg",
 		"terminal": "/assets/skins/windows95/apps/icons/terminal.svg",
 		"text-editor": "/assets/skins/windows95/apps/icons/text-editor.svg",

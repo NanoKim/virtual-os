@@ -39,7 +39,6 @@ function generateAliases() {
 		"browser",
 		"calculator",
 		"file-explorer",
-		"logic-sim",
 		"media-viewer",
 		"settings",
 		"terminal",
